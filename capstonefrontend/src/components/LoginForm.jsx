@@ -1,27 +1,26 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './SignupForm.css'
-import { UserContext } from '../../UserContext.js';
+import { UserContext } from '../UserContext.js';
+import './LoginForm.css'
 
-const SignupForm = () => {
+const LoginForm = () => {
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const { updateUser } = useContext(UserContext);
+
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      // Make the signup API request
-      const response = await fetch(`http://localhost:3000/users`, {
+      // Make the login API request
+      const response = await fetch(`http://localhost:3000/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, password }),
         credentials: 'include'
       });
 
@@ -29,32 +28,25 @@ const SignupForm = () => {
         const data = await response.json();
         const loggedInUser = data.user;
 
-        console.log('Signup successful');
-
-        // Reset form fields
-        setUsername('');
-        setEmail('');
-        setPassword('');
-
         // Update the user context
         updateUser(loggedInUser);
 
         // Navigate to the home page after successful login
         navigate('/');
       } else {
-        // Handle signup failure case
-        alert('Signup failed');
+        // Handle the login failure case
+        alert('Login failed');
       }
     } catch (error) {
       // Handle any network or API request errors
-      alert('Signup failed: ' + error);
+      alert('Login failed: ' + error);
     }
   };
 
   return (
-    <div className="signup-form-container">
-      <form className="signup-form" onSubmit={handleSubmit}>
-        <h2>Sign Up</h2>
+    <div className='login-form-container'>
+      <form className="login-form" onSubmit={handleLogin}>
+        <h2>Login</h2>
         <div className="form-group">
           <label htmlFor="username">Username:</label>
           <input
@@ -62,16 +54,6 @@ const SignupForm = () => {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -85,13 +67,13 @@ const SignupForm = () => {
             required
           />
         </div>
-        <button type="submit">Sign Up</button>
+        <button type="submit">Login</button>
         <p>
-          Already have an account? <Link to="/login">Log In</Link>
+          New to the app? <Link to="/signup">Sign Up</Link>
         </p>
       </form>
     </div>
   );
 };
 
-export default SignupForm;
+export default LoginForm;
