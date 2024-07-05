@@ -6,7 +6,8 @@ import { useState, useEffect } from "react";
 function HomePage(){
         const [videoFile, setVideoFile]  = useState(null);
         const [uploading, setUploading] = useState(false);
-        const [videoUrl, setVideoUrl] = useState(null);
+        const [videos, setVideos] = useState([]);
+
         const handleVideoChange = (event) => {
             setVideoFile(event.target.files[0]);
         }
@@ -19,15 +20,12 @@ function HomePage(){
             // console.log(formData.get("video"));
             fetch('http://localhost:3000/upload-video', {
                 method: 'POST',
-                headers: {
-                    'Cookie': document.cookie,
-                },
                 body: formData,
+                credentials: "include"
             })
-            .then((response) => console.log(response))
+            .then((response) => response.json())
             .then((data) => {
-                console.log(data);
-                setVideoUrl(data.videoUrl);
+
                 setUploading(false);
             })
             .catch((error) => {
@@ -35,6 +33,26 @@ function HomePage(){
                 setUploading(false);
             });
         };
+
+        const userVideos = () => {
+            fetch('http://localhost:3000/getUserVideos', {
+                method: 'GET',
+                // body: formData,
+                credentials: "include"
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                setVideos(data.videos);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        }
+
+        useEffect(()=>{
+            userVideos()
+        },[])
+        
 
     return (
         <div className="videoSection">
@@ -51,36 +69,15 @@ function HomePage(){
                 </form>
                 {uploading ? (
                     <p> Uploading...</p>
-                ): (
-                    <video src={videoUrl} controls/>
-                )}
+                ): null}
             </div>
+            {videos.map((video) =>{
+                console.log(video)
+                return (
+                    <video key={video.id} src={video.videoData.url} controls/>
+                )
+            })}
         </div>
     );
-
-    // const [danceVideos, setDanceVideos] = useState([]);
-    // const navigate = useNavigate();
-
-    // const handleCreateDanceVideos = () =>{
-    //     fetch(`${import.meta.env.VITE_BACKEND_ADDRESS}/danceVideos`, {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify(newKudosBoard),
-    //     })
-    //     .then((response) => {
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! status: ${response.status}`);
-    //         }
-    //         return response.json();
-    //     })
-    //     .then((data) => {
-    //         fetchKudoBoards();
-    //     })
-    //     .catch((error) => {
-    //         console.error("Error fetching kudosBoard:", error);
-    //     });
-    // };  
 }
 export default HomePage;

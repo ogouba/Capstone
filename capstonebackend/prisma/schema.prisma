@@ -13,19 +13,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id             Int @id @default(autoincrement())
-  username       String @unique
+model Video {
+  id        Int     @id @default(autoincrement())
+  videoData Json
+  isPublic  Boolean @default(false)
+  creator   User    @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
   email          String
   hashedPassword String
-  videos         Json[]
   sessions       Session[]
+  videos         Video[]
 }
 
 model Session {
   id        String   @id
   sid       String   @unique
   data      String
-  expiresAt   DateTime
-  user         User[]
+  expiresAt DateTime
+  user      User[]
 }

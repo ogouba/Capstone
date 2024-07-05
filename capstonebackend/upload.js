@@ -19,7 +19,6 @@ async function handleUpload(file) {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const myUploadMiddleware = upload.single("video");
-const { exampleVideoData } = require("./utils")
 
 function runMiddleware(req, res, fn) {
     return new Promise((resolve, reject) => {
@@ -33,29 +32,31 @@ function runMiddleware(req, res, fn) {
 }
 
 const handler = async (req, res) => {
-    console.log(req.session);
     try {
+        console.log(req.session)
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         await runMiddleware(req, res, myUploadMiddleware);
         const b64 = Buffer.from(req.file.buffer).toString("base64");
         let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
         const cldRes = await handleUpload(dataURI);
-        const { videos } = prisma.user.update({
-            where: {
-                id: req.session.user.id
-            },
+        await prisma.video.create({
             data: {
-                videos: {
-                    push: cldRes
+                videoData: cldRes,
+                creator: {
+                    connect: {
+                        id: req.session.user.id
+                    }
                 }
             },
-            select: {
-                videos: true
-            }
         })
-        res.json(videos);
+        res.json({
+            success: true
+        });
     } catch (error) {
         console.log(error);
-        res.send({
+        res.json({
             message: error.message,
         });
     }

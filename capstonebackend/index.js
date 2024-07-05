@@ -162,6 +162,27 @@ app.get("/getUser", async (req, res) => {
         }
     });
 })
+app.get("/getUserVideos", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        // Retrieve the current user from the session
+        const currentUser = req.session.user;
+
+        // Create the post with the current user ID
+
+        const UserVideos = await prisma.user.findFirst({
+            where: { id: currentUser.id },
+            select: {
+                videos: true
+            }
+        });
+        res.status(201).json(UserVideos);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+})
 
 app.get("/logout", async (req, res) => {
     try{
@@ -180,8 +201,9 @@ app.get("/logout", async (req, res) => {
     }
 })
 
-
 app.post("/upload-video", handler);
+
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
