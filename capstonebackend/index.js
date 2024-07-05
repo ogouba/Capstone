@@ -7,13 +7,13 @@ const saltRounds = 14;
 const app = express()
 const session = require('express-session')
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
-
 const PORT = 3000
-
 require('dotenv').config()
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(express.json());
+app.use(cors({ origin: ["http://localhost:5173", "http://localhost:4173"], credentials: true }));
+
+
+app.use(express.json())
 
 app.use(
     session({
@@ -29,12 +29,32 @@ app.use(
             }
         ),
         cookie: {
+            httpOnly: false,
             sameSite: false,
             secure: false,
-            expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
-        }
+            maxAge: 3600000,
+        },
     })
 );
+
+const { handler } = require("./upload")
+
+const { getJson } = require("serpapi");
+app.get("/getVideos", async (req, res) => {
+    try {
+        const result = await getJson({
+            engine: "google_videos",
+            q: "Dance videos",
+            google_domain: "google.com",
+            api_key: process.env.API_KEY,
+        })
+        res.status(200).json(result)
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: err.message });
+    }
+
+});
 
 app.get("/posts", async (req, res) => {
     try {
@@ -46,6 +66,7 @@ app.get("/posts", async (req, res) => {
     }
 });
 app.post('/posts', async (req, res) => {
+    console.log(req.session.user);
     try {
         if (!req.session.user) {
             return res.status(401).json({ error: 'Unauthorized' });
@@ -103,7 +124,7 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        console.log(user.password)
+        // console.log(user.password)
 
         // Compare the password
         const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
@@ -114,6 +135,8 @@ app.post("/login", async (req, res) => {
 
         // Set the user in the session
         req.session.user = user;
+        await req.session.save();
+        console.log(req.session)
 
         // Return the user data in the response
         res.json({ user });
@@ -122,6 +145,27 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 })
+app.get("/getUser", async (req, res) => {
+    if (!req.session.user) {
+        return res.json({
+            isLoggedIn: true,
+            user: null
+        });
+    }
+
+    return res.json({
+        isLoggedIn: true,
+        user: {
+            id: req.session.id,
+            email: req.session.user.email,
+            username: req.session.user.username
+        }
+    });
+})
+
+
+app.post("/upload-video", handler);
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })

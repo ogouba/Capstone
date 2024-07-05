@@ -2,10 +2,11 @@ import "./Main.css"
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext.js";
 import { Link } from "react-router-dom";
+import DanceVideosBoard from "./DanceVIdeosBoard.jsx";
 
 function Main() {
     const { user, updateUser } = useContext(UserContext);
-    const [posts, setPosts] = useState([]);
+    const [danceVideos, setdanceVideos] = useState([]);
     const [form, setForm] = useState({
         title: '',
         content: '',
@@ -13,13 +14,15 @@ function Main() {
     });
 
     useEffect(() =>{
-        const fetchPosts = async () => {
-            const response = await fetch('http://localhost:3000/posts');
+        const fetchDanceVideos = async () => {
+            const response = await fetch('http://localhost:3000/getVideos');
             const data = await response.json();
-            setPosts(data);    
+            console.log(data.video_results)
+            setdanceVideos(data);    
         };
-        fetchPosts();      
+        fetchDanceVideos();      
     }, []);
+
     const handleChange = (event) => {
         setForm({
             ...form,
@@ -27,15 +30,15 @@ function Main() {
         });
     };
     const handleSubmit = async (event) => {
-        event.preventDefault();
-        const response = await fetch('http://localhost:3000/posts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(form),
-            credentials: 'include'
-        });
-        const newPost = await response.json();
-        setPosts([newPost, ...posts]);
+        // event.preventDefault();
+        // const response = await fetch('http://localhost:3000/getVideos', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(form),
+        //     credentials: 'include'
+        // });
+        // const newPost = await response.json();
+        // setPosts([newPost, ...posts]);
     }
     const handleLogout = () => {
     // Perform logout logic here
@@ -55,8 +58,14 @@ function Main() {
               <Link to="/login">Login</Link>
             )}
           </div>
+        <p>
+          New Post <Link to="/newpost"> new post </Link>
+        </p>
         </header>
-          <form className="new-post-form" onSubmit={handleSubmit}>
+        <DanceVideosBoard
+        video_results={danceVideos}
+        />
+          {/* <form className="new-post-form" onSubmit={handleSubmit}>
               <input
                   type="text"
                   name="title"
@@ -80,7 +89,7 @@ function Main() {
                 <p>{post.content}</p>
             </div>
             ))}
-          </div>
+          </div> */}
         </div>
       )
 }

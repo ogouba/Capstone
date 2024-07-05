@@ -18,6 +18,8 @@ model User{
   username       String @unique
   email          String
   hashedPassword String
+  videos         Json[]
+  sessions       Session[]
 }
 
 model Session {
@@ -25,4 +27,5 @@ model Session {
   sid       String   @unique
   data      String
   expiresAt   DateTime
+  user         User[]
 }

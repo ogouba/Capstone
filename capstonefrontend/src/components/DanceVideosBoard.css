@@ -1,0 +1,10 @@
+
+.videoList {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5em; 
+    background-color: black;
+    font-family:"Spicy Rice";
+}
