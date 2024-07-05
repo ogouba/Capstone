@@ -1,17 +1,19 @@
 import "./Main.css"
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DanceVideosBoard from "./DanceVIdeosBoard.jsx";
 
 function Main() {
-    const { user, updateUser } = useContext(UserContext);
+    const { user } = useContext(UserContext);
     const [danceVideos, setdanceVideos] = useState([]);
     const [form, setForm] = useState({
         title: '',
         content: '',
         credentials: 'include'
     });
+    const { updateUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
     useEffect(() =>{
         const fetchDanceVideos = async () => {
@@ -40,10 +42,16 @@ function Main() {
         // const newPost = await response.json();
         // setPosts([newPost, ...posts]);
     }
-    const handleLogout = () => {
-    // Perform logout logic here
-      // Example: Clear user data from localStorage, reset user state, etc.
-      updateUser(null);
+    const handleLogout = async () => {
+        const response = await fetch('http://localhost:3000/logout', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
+        const data = response.json()
+
+        updateUser()
+        navigate("/")
     }
     return (
         <div className="main">

@@ -7,11 +7,10 @@ const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { updateUser } = useContext(UserContext);
-
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
 
     try {
       // Make the login API request
@@ -25,14 +24,8 @@ const LoginForm = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        const loggedInUser = data.user;
-
-        // Update the user context
-        updateUser(loggedInUser);
-
-        // Navigate to the home page after successful login
-        navigate('/');
+        updateUser()
+        navigate("/")
       } else {
         // Handle the login failure case
         alert('Login failed');

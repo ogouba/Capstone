@@ -148,7 +148,7 @@ app.post("/login", async (req, res) => {
 app.get("/getUser", async (req, res) => {
     if (!req.session.user) {
         return res.json({
-            isLoggedIn: true,
+            isLoggedIn: false,
             user: null
         });
     }
@@ -161,6 +161,23 @@ app.get("/getUser", async (req, res) => {
             username: req.session.user.username
         }
     });
+})
+
+app.get("/logout", async (req, res) => {
+    try{
+        if (!req.session.user) {
+            res.status(500).json({ error: 'No User' });
+            return
+        }
+        req.session.user = null
+        await req.session.save()
+
+        res.json({ success: true });
+        return
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
 })
 
 
