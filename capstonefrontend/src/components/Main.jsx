@@ -3,10 +3,12 @@ import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext.js";
 import { Link, useNavigate } from "react-router-dom";
 import DanceVideosBoard from "./DanceVIdeosBoard.jsx";
+import OtherPeopleProfile from "./Pages/OtherPeopleProfile.jsx";
 
 function Main() {
     const { user } = useContext(UserContext);
     const [danceVideos, setdanceVideos] = useState([]);
+    
     const [form, setForm] = useState({
         title: '',
         content: '',
@@ -31,17 +33,6 @@ function Main() {
             [event.target.name]: event.target.value,
         });
     };
-    const handleSubmit = async (event) => {
-        // event.preventDefault();
-        // const response = await fetch('http://localhost:3000/getVideos', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(form),
-        //     credentials: 'include'
-        // });
-        // const newPost = await response.json();
-        // setPosts([newPost, ...posts]);
-    }
     const handleLogout = async () => {
         const response = await fetch('http://localhost:3000/logout', {
             method: 'GET',
@@ -69,35 +60,23 @@ function Main() {
         <p>
           New Post <Link to="/newpost"> new post </Link>
         </p>
-        </header>
+        {/* <div>
+            <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+                placeholder="Search for users"
+            />
+            <ul>
+                {searchResults.map((user) => (
+                <li key={user.id}>{user.name}</li>
+                ))}
+            </ul>
+        </div> */}
+     </header>
         <DanceVideosBoard
         video_results={danceVideos}
         />
-          {/* <form className="new-post-form" onSubmit={handleSubmit}>
-              <input
-                  type="text"
-                  name="title"
-                  placeholder="Title"
-                  value={form.title}
-                  onChange={handleChange}
-              />
-              <textarea
-                  name="content"
-                  placeholder="Content"
-                  value={form.content}
-                  onChange={handleChange}
-              />
-              <button type="submit">Submit</button>
-          </form>
-          <div className="posts-container">
-            {posts.map((post) => (
-            <div className="post" key={post.id}>
-                <h2>{post.title}</h2>
-                <h4>By {post.user.username} at {new Date(post.createdAt).toLocaleString()}</h4>
-                <p>{post.content}</p>
-            </div>
-            ))}
-          </div> */}
         </div>
       )
 }

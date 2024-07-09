@@ -124,8 +124,6 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        // console.log(user.password)
-
         // Compare the password
         const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
 
@@ -145,6 +143,7 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 })
+
 app.get("/getUser", async (req, res) => {
     if (!req.session.user) {
         return res.json({
@@ -152,7 +151,6 @@ app.get("/getUser", async (req, res) => {
             user: null
         });
     }
-
     return res.json({
         isLoggedIn: true,
         user: {
@@ -162,6 +160,7 @@ app.get("/getUser", async (req, res) => {
         }
     });
 })
+
 app.get("/getUserVideos", async (req, res) => {
     try {
         if (!req.session.user) {
@@ -185,7 +184,7 @@ app.get("/getUserVideos", async (req, res) => {
 })
 
 app.get("/logout", async (req, res) => {
-    try{
+    try {
         if (!req.session.user) {
             res.status(500).json({ error: 'No User' });
             return
@@ -203,7 +202,70 @@ app.get("/logout", async (req, res) => {
 
 app.post("/upload-video", handler);
 
+app.delete('/delete-video/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    console.log(id, req.body)
+    try {
+        await prisma.video.delete({
+            where: { id },
+        });
+        res.send({ message: 'Video deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Error deleting video' });
+    }
+});
 
+// app.get('/OtherUserVideos', async (req, res) => {
+//     const user = await prisma.user.findUnique({
+//       where: { id: req.user.id },
+//     });
+//     res.json(user);
+//   });
+
+app.get('/OtherUserVideos', async (req, res) => {
+    const query = req.query.q;
+    const users = await prisma.user.findMany({
+        where: {
+            OR: [
+                { email: { contains: query } },
+                { username: { contains: query } },
+            ],
+        },
+        include: {
+            videos: true
+        }
+    });
+    res.json(users);
+});
+
+// app.get('/OtherUser', async (req, res) => {
+//     try {
+//         const otherUser = await prisma.user.findFirst({
+//             where: {
+//                 username: {
+//                     contains: req.query.searchQuery
+//                 }
+//             },
+//             select: {
+//                 videos: true
+//             }
+//         });
+//         res.status(201).json(otherUser.videos);
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// });
+//   const UserVideos = await prisma.user.findFirst({
+//     where: { id: currentUser.id },
+//     select: {
+//         videos: true
+//     }
+// });
+// res.status(201).json(UserVideos);
+// } catch (err) {
+// res.status(500).json({ message: err.message });
+// }
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
