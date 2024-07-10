@@ -19,6 +19,7 @@ model Video {
   isPublic  Boolean @default(false)
   creator   User    @relation(fields: [userId], references: [id])
   userId    Int
+  category  String
 }
 
 model User {

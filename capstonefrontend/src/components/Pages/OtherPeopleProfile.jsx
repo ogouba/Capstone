@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-
 function OtherPeopleProfile({ searchQuery }) {
     const [users, setUsers] = useState([]);
-
     const otherUserVideos = async (searchQuery) => {
         const response = await fetch(
             "http://localhost:3000/OtherUserVideos?q=" + searchQuery,
@@ -19,7 +17,6 @@ function OtherPeopleProfile({ searchQuery }) {
         console.log(data);
         setUsers(data);
     };
-
     useEffect(() => {
         otherUserVideos(searchQuery);
     }, [searchQuery]);

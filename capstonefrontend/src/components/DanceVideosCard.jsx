@@ -1,6 +1,5 @@
 import "./DanceVideosCard.css";
 import { useState } from "react";
-// import Modal from "./Modal.jsx";
 
 function DanceVideosCard(props){
     const [modalOpened, setModalOpened] = useState(false);
@@ -18,19 +17,7 @@ function DanceVideosCard(props){
                 <h3 id="videoDate"> {props.date} </h3>
                 <h3 id="videoDisplayed_link"> {props.diplayed_link}</h3>
             </div>
-            {/* <div
-                style={{
-                    color: "white",
-                    display: modalOpened ? "block" : "none",
-                }}
-            >
-                <Modal
-                    id={props.position}
-                    close={closeModal}
-                    movie_title={props.title}
-                    movie_releaseDate={props.date}
-                />
-            </div> */}
+
         </>
     );                     
 }

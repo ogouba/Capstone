@@ -72,7 +72,6 @@ function Profile() {
         const newSearchQuery = event.target.value;
         setSearchQuery(newSearchQuery);
     };
-
     return (
         <div>
             <input

@@ -9,12 +9,8 @@ const session = require('express-session')
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const PORT = 3000
 require('dotenv').config()
-
 app.use(cors({ origin: ["http://localhost:5173", "http://localhost:4173"], credentials: true }));
-
-
 app.use(express.json())
-
 app.use(
     session({
         secret: 'your-secret-key',
@@ -38,7 +34,6 @@ app.use(
 );
 
 const { handler } = require("./upload")
-
 const { getJson } = require("serpapi");
 app.get("/getVideos", async (req, res) => {
     try {
@@ -216,13 +211,6 @@ app.delete('/delete-video/:id', async (req, res) => {
     }
 });
 
-// app.get('/OtherUserVideos', async (req, res) => {
-//     const user = await prisma.user.findUnique({
-//       where: { id: req.user.id },
-//     });
-//     res.json(user);
-//   });
-
 app.get('/OtherUserVideos', async (req, res) => {
     const query = req.query.q;
     const users = await prisma.user.findMany({
@@ -239,36 +227,6 @@ app.get('/OtherUserVideos', async (req, res) => {
     res.json(users);
 });
 
-// app.get('/OtherUser', async (req, res) => {
-//     try {
-//         const otherUser = await prisma.user.findFirst({
-//             where: {
-//                 username: {
-//                     contains: req.query.searchQuery
-//                 }
-//             },
-//             select: {
-//                 videos: true
-//             }
-//         });
-//         res.status(201).json(otherUser.videos);
-//     } catch (err) {
-//         res.status(500).json({ message: err.message });
-//     }
-// });
-//   const UserVideos = await prisma.user.findFirst({
-//     where: { id: currentUser.id },
-//     select: {
-//         videos: true
-//     }
-// });
-// res.status(201).json(UserVideos);
-// } catch (err) {
-// res.status(500).json({ message: err.message });
-// }
-
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })
-
-//{*able to zoom into the video from a specific point in which they double click while they are viewing the videos. They can make comments while viewing the video in a specific state and other users would be able to see the timestamp of the part they were viewing as that when they make the comments, and what state they are in }

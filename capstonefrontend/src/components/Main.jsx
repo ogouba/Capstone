@@ -21,7 +21,6 @@ function Main() {
         const fetchDanceVideos = async () => {
             const response = await fetch('http://localhost:3000/getVideos');
             const data = await response.json();
-            console.log(data.video_results)
             setdanceVideos(data);    
         };
         fetchDanceVideos();      
@@ -40,7 +39,6 @@ function Main() {
             credentials: 'include'
         });
         const data = response.json()
-
         updateUser()
         navigate("/")
     }
@@ -60,19 +58,6 @@ function Main() {
         <p>
           New Post <Link to="/newpost"> new post </Link>
         </p>
-        {/* <div>
-            <input
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchInputChange}
-                placeholder="Search for users"
-            />
-            <ul>
-                {searchResults.map((user) => (
-                <li key={user.id}>{user.name}</li>
-                ))}
-            </ul>
-        </div> */}
      </header>
         <DanceVideosBoard
         video_results={danceVideos}
