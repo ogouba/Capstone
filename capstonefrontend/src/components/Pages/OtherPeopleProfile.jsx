@@ -3,7 +3,7 @@ function OtherPeopleProfile({ searchQuery }) {
     const [users, setUsers] = useState([]);
     const otherUserVideos = async (searchQuery) => {
         const response = await fetch(
-            "http://localhost:3000/OtherUserVideos?q=" + searchQuery,
+            "http://localhost:3000/OtherUser?q=" + searchQuery,
             {
                 method: "GET",
                 credentials: "include",
@@ -28,7 +28,8 @@ function OtherPeopleProfile({ searchQuery }) {
                     <div key={user.email}>
                         <h1>{user.username}</h1>
                         <ul>
-                            {user.videos.map((video) => (
+
+                            {user.videos && user.videos.map((video) => (
                                 <li key={video.id}>
                                     <video
                                         src={video.videoData.url}

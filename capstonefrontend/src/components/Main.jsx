@@ -8,6 +8,7 @@ import OtherPeopleProfile from "./Pages/OtherPeopleProfile.jsx";
 function Main() {
     const { user } = useContext(UserContext);
     const [danceVideos, setdanceVideos] = useState([]);
+  
     
     const [form, setForm] = useState({
         title: '',
@@ -56,7 +57,7 @@ function Main() {
             )}
           </div>
         <p>
-          New Post <Link to="/newpost"> new post </Link>
+         New Post go to link <Link to="/newpost"> new post </Link>
         </p>
      </header>
         <DanceVideosBoard

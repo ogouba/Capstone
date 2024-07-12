@@ -19,7 +19,7 @@ app.use(
         store: new PrismaSessionStore(
             prisma,
             {
-                checkPeriod: 2 * 60 * 1000,  //ms
+                checkPeriod: 60 * 60 * 1000,  //ms
                 dbRecordIdIsSessionId: true,
                 dbRecordIdFunction: undefined,
             }
@@ -28,11 +28,11 @@ app.use(
             httpOnly: false,
             sameSite: false,
             secure: false,
+            expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)),
             maxAge: 3600000,
         },
     })
 );
-
 const { handler } = require("./upload")
 const { getJson } = require("serpapi");
 app.get("/getVideos", async (req, res) => {
@@ -48,9 +48,7 @@ app.get("/getVideos", async (req, res) => {
         console.error(err)
         res.status(500).json({ message: err.message });
     }
-
 });
-
 app.get("/posts", async (req, res) => {
     try {
         console.log(req.session.user)
@@ -85,9 +83,8 @@ app.post('/posts', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
 app.post("/create", async (req, res) => {
-    const { email, password, username } = req.body;
+    const { email, password, username, categories } = req.body;
     console.log(password)
     bcrypt.hash(password, saltRounds, async function (err, hashed) {
         try {
@@ -95,7 +92,10 @@ app.post("/create", async (req, res) => {
                 data: {
                     username,
                     email,
-                    hashedPassword: hashed
+                    hashedPassword: hashed,
+                    interests: {
+                        connect: categories.map(id => ({ id }))
+                    }
                 }
             });
             // Set the user in the session
@@ -114,23 +114,19 @@ app.post("/login", async (req, res) => {
         const user = await prisma.user.findUnique({
             where: { username }
         });
-
         if (!user) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
-
         // Compare the password
         const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
 
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
-
         // Set the user in the session
         req.session.user = user;
         await req.session.save();
         console.log(req.session)
-
         // Return the user data in the response
         res.json({ user });
     } catch (error) {
@@ -138,7 +134,6 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 })
-
 app.get("/getUser", async (req, res) => {
     if (!req.session.user) {
         return res.json({
@@ -155,7 +150,6 @@ app.get("/getUser", async (req, res) => {
         }
     });
 })
-
 app.get("/getUserVideos", async (req, res) => {
     try {
         if (!req.session.user) {
@@ -177,7 +171,6 @@ app.get("/getUserVideos", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 })
-
 app.get("/logout", async (req, res) => {
     try {
         if (!req.session.user) {
@@ -194,9 +187,7 @@ app.get("/logout", async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 })
-
 app.post("/upload-video", handler);
-
 app.delete('/delete-video/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     console.log(id, req.body)
@@ -210,23 +201,35 @@ app.delete('/delete-video/:id', async (req, res) => {
         res.status(500).send({ message: 'Error deleting video' });
     }
 });
-
-app.get('/OtherUserVideos', async (req, res) => {
+app.get('/OtherUser', async (req, res) => {
     const query = req.query.q;
     const users = await prisma.user.findMany({
         where: {
-            OR: [
-                { email: { contains: query } },
-                { username: { contains: query } },
-            ],
+            username: {
+                contains: query,
+                mode: 'insensitive'
+            }
         },
-        include: {
-            videos: true
-        }
     });
     res.json(users);
 });
-
+app.get('/OtherUserVideos', async (req, res) => {
+    const query = req.query.q;
+    const videos = await prisma.video.findMany({
+        where: {
+            categories: {
+                some: {
+                    name: {
+                        contains: query,
+                        mode: 'insensitive'
+                    },
+                },
+            },
+        }
+    });
+    res.json(videos);
+});
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })
+

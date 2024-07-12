@@ -33,6 +33,8 @@ function runMiddleware(req, res, fn) {
 
 const handler = async (req, res) => {
     try {
+        const videoCategory = JSON.parse(req.query.categories)
+        console.log(videoCategory)
         console.log(req.session)
         if (!req.session.user) {
             return res.status(401).json({ error: 'Unauthorized' });
@@ -48,6 +50,9 @@ const handler = async (req, res) => {
                     connect: {
                         id: req.session.user.id
                     }
+                },
+                categories: {
+                    connect: videoCategory.map(id => ({ id }))
                 }
             },
         })

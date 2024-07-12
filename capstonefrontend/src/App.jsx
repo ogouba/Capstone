@@ -5,7 +5,6 @@ import Main from "./components/Main";
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
 import HomePage from "./components/Profile";
-// import HomePage from './components/HomePage';
 import { useAuth } from "./hooks";
 
 function App() {

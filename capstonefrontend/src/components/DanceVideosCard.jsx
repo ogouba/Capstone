@@ -17,7 +17,6 @@ function DanceVideosCard(props){
                 <h3 id="videoDate"> {props.date} </h3>
                 <h3 id="videoDisplayed_link"> {props.diplayed_link}</h3>
             </div>
-
         </>
     );                     
 }
