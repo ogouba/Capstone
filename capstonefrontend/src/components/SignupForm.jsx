@@ -8,12 +8,9 @@ const SignupForm = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
     const [categories, setCategories] = useState([]);
-
     const { updateUser } = useContext(UserContext);
     const navigate = useNavigate();
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -30,8 +27,7 @@ const SignupForm = () => {
             if (response.ok) {
                 const data = await response.json();
                 const loggedInUser = data.user;
-
-                console.log("Signup successful");
+                <p>Signup Successful</p>
                 // Reset form fields
                 setUsername("");
                 setEmail("");

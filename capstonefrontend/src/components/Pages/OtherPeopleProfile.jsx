@@ -14,7 +14,6 @@ function OtherPeopleProfile({ searchQuery }) {
         }
 
         const data = await response.json();
-        console.log(data);
         setUsers(data);
     };
     useEffect(() => {
@@ -28,15 +27,15 @@ function OtherPeopleProfile({ searchQuery }) {
                     <div key={user.email}>
                         <h1>{user.username}</h1>
                         <ul>
-
-                            {user.videos && user.videos.map((video) => (
-                                <li key={video.id}>
-                                    <video
-                                        src={video.videoData.url}
-                                        controls
-                                    />
-                                </li>
-                            ))}
+                            {user.videos &&
+                                user.videos.map((video) => (
+                                    <li key={video.id}>
+                                        <video
+                                            src={video.videoData.url}
+                                            controls
+                                        />
+                                    </li>
+                                ))}
                         </ul>
                     </div>
                 );

@@ -8,6 +8,7 @@ import OtherPeopleVideos from "./Pages/OtherPeopleVideos";
 function Profile() {
     const [videoFile, setVideoFile] = useState(null);
     const [videoCategory, setVideoCategory] = useState([]);
+    const [videoTitle, setVideoTitle] = useState("");
     const [uploading, setUploading] = useState(false);
     const [videos, setVideos] = useState([]);
     const [searchResultsUser, setSearchResultsUser] = useState([]);
@@ -26,7 +27,9 @@ function Profile() {
         fetch(
             "http://localhost:3000/upload-video" +
                 "?categories=" +
-                encodeURI(JSON.stringify(videoCategory)),
+                encodeURI(JSON.stringify(videoCategory)) +
+                "&title=" +
+                encodeURI(JSON.stringify(videoTitle)),
             {
                 method: "POST",
                 body: formData,
@@ -85,9 +88,17 @@ function Profile() {
         const newSearchQuery = event.target.value;
         setSearchQueryUser(newSearchQuery);
     };
-    const handleSearchInputChangeVideo = (event) => {
-        const newSearchQuery = event.target.value;
-        setSearchQueryVideos(newSearchQuery);
+    const handleSearchSubmit = () => {
+        // save the search query
+        fetch("http://localhost:3000/saveSearch", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                // Include authorization headers if needed
+            },
+            body: JSON.stringify({ query: searchQueryVideos }),
+        });
     };
     return (
         <div>
@@ -108,16 +119,16 @@ function Profile() {
             <input
                 type="text"
                 value={searchQueryVideos}
-                onChange={handleSearchInputChangeVideo}
+                onChange={(e) => setSearchQueryVideos(e.target.value)}
                 placeholder="Search for video posts"
             />
+            <button onClick={handleSearchSubmit}> search </button>
             {searchQueryVideos.length > 0 ? (
                 <OtherPeopleVideos searchQuery={searchQueryVideos} />
             ) : null}
             {searchResultsVideos.map((user) => (
                 <li key={user.id}>{user.name}</li>
             ))}
-
             <div className="videoSection"></div>
             <h1>Videos</h1>
             <p>Upload videos in MP4 format</p>
@@ -130,7 +141,7 @@ function Profile() {
                     ></input>
                     <Checkboxlist
                         options={[
-                            { id: 1, name: "Hip Pop" },
+                            { id: 1, name: "HipPop" },
                             { id: 2, name: "Jazz" },
                             { id: 3, name: "Afrobeat" },
                             { id: 4, name: "Salsa" },
@@ -139,26 +150,37 @@ function Profile() {
                         selectedOptions={videoCategory}
                         setSelectedOptions={(val) => setVideoCategory(val)}
                     />
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="title goes here"
+                        id="cardBoardTitle"
+                        onChange={(e) => setVideoTitle(e.target.value)}
+                    ></input>
                     <button onClick={handleUpload}>Upload Video</button>
                 </form>
                 {uploading ? <p>Uploading...</p> : null}
             </div>
             <div>
-                {videos && videos.map((video, idx) => {
-                    return (
-                        <span key={idx}>
-                            <button id="deleteButton" onClick={handleDelete}>
-                                Delete Video
-                            </button>
-                            <video
-                                id="videoimage"
-                                key={video.id}
-                                src={video.videoData.url}
-                                controls
-                            />
-                        </span>
-                    );
-                })}
+                {videos &&
+                    videos.map((video, idx) => {
+                        return (
+                            <span key={idx}>
+                                <button
+                                    id="deleteButton"
+                                    onClick={handleDelete}
+                                >
+                                    Delete Video
+                                </button>
+                                <video
+                                    id="videoimage"
+                                    key={video.id}
+                                    src={video.videoData.url}
+                                    controls
+                                />
+                            </span>
+                        );
+                    })}
             </div>
             <button></button>
         </div>
