@@ -288,24 +288,24 @@ app.get("/getRecommendedVideosPrisma", async (req, res) => {
     });
     res.json(videos);
 });
-// app.get("/getRecommendedVideosAPI", async (req, res) => {
-//     // search thru the searhces model for each user then use whatever is found 
-//     //in searches to query the video model and then render it 
+app.get("/getRecommendedVideosAPI", async (req, res) => {
+    // search thru the searhces model for each user then use whatever is found 
+    //in searches to query the video model and then render it 
 
-//     const videos = await prisma.video.findMany({
-//         where: {
-//             categories: {
-//                 some: {
-//                     name: {
-//                         contains: query,
-//                         mode: 'insensitive'
-//                     },
-//                 },
-//             },
-//         }
-//     });
-//     res.json(videos);
-// });
+    const videos = await prisma.video.findMany({
+        where: {
+            categories: {
+                some: {
+                    name: {
+                        contains: query,
+                        mode: 'insensitive'
+                    },
+                },
+            },
+        }
+    });
+    res.json(videos);
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
