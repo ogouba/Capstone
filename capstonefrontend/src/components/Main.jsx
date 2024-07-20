@@ -3,13 +3,11 @@ import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext.js";
 import { Link, useNavigate } from "react-router-dom";
 import DanceVideosBoard from "./DanceVIdeosBoard.jsx";
-import OtherPeopleProfile from "./Pages/OtherPeopleProfile.jsx";
 import RecomendedVideos from "./RecomendedVideos.jsx";
 
 function Main() {
     const { user } = useContext(UserContext);
     const [danceVideos, setdanceVideos] = useState([]);
-
     const [form, setForm] = useState({
         title: "",
         content: "",
@@ -17,7 +15,7 @@ function Main() {
     });
     const { updateUser } = useContext(UserContext);
     const navigate = useNavigate();
-
+    
     useEffect(() => {
         const fetchDanceVideos = async () => {
             const response = await fetch("http://localhost:3000/getVideos");

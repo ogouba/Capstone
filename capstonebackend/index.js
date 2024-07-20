@@ -176,7 +176,6 @@ app.get("/logout", async (req, res) => {
         }
         req.session.user = null
         await req.session.save()
-
         res.json({ success: true });
         return
     } catch (error) {
@@ -264,49 +263,51 @@ app.get("/getRecommendedVideosPrisma", async (req, res) => {
         where: {
             users: {
                 some: {
-                   id: userId,
+                    id: userId,
                 },
             },
         },
     });
+    // Fetch the interests for the user
+    const userInterests = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { interests: true },
+    });
     // Extract the search queries
     const searchQueries = userSearches.map(search => search.query);
-    // Use the search queries to find videos
-    const videos = await prisma.video.findMany({
-        where: {
-            OR: searchQueries.map(query => ({
-                categories: {
-                    some: {
-                        name: {
-                            contains: query,
-                            mode: 'insensitive',
-                        },
-                    },
-                },
-            })),
-        },
-    });
-    res.json(videos);
-});
-app.get("/getRecommendedVideosAPI", async (req, res) => {
-    // search thru the searhces model for each user then use whatever is found 
-    //in searches to query the video model and then render it 
-
-    const videos = await prisma.video.findMany({
-        where: {
+    // Extract the interest names
+    const interestNames = userInterests.interests.map(interest => interest.name);
+    // Combine search queries and interest names
+    const combinedCriteria = [
+        ...searchQueries.map(query => ({
             categories: {
                 some: {
                     name: {
                         contains: query,
-                        mode: 'insensitive'
+                        mode: 'insensitive',
                     },
                 },
             },
-        }
+        })),
+        ...interestNames.map(name => ({
+            categories: {
+                some: {
+                    name: {
+                        contains: name,
+                        mode: 'insensitive',
+                    },
+                },
+            },
+        })),
+    ];
+    // Use the combined criteria to find videos
+    const videos = await prisma.video.findMany({
+        where: {
+            OR: combinedCriteria,
+        },
     });
     res.json(videos);
 });
-
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })
