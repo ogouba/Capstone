@@ -1,14 +1,9 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import './DanceVideosBoard.css'
 import DanceVideosCard from './DanceVideosCard.jsx'
-
 function DanceVideosBoard(props) {
     useEffect(() => {
-        console.log("HEY");
-        console.log(props.video_results.video_results);
     }, []);
-
     return (
         <>
         {

@@ -1,0 +1,47 @@
+/* .recommendationsSection{
+
+} */
+.recommended{
+    width: 200px;
+    height: 100px;
+    background-color: #4CAF50;
+    position: relative;
+    transition: left 0.5s ease-in-out;
+    left: -220px; 
+}
+.recommendationsSection {
+    width: 100%;
+    background-color: #f8f8f8;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.recommended h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+.videoList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;   
+}
+.videoItem {
+    flex: 1 1 200px; /* Flex-grow, flex-shrink, flex-basis */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 10px;
+    text-align: center;
+    height: 40px;
+}
+
+.videoItem img {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid #eee;
+}
+
+.videoItem h3 {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}

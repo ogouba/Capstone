@@ -1,83 +1,117 @@
-import "./Main.css"
+import "./Main.css";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext.js";
 import { Link, useNavigate } from "react-router-dom";
 import DanceVideosBoard from "./DanceVIdeosBoard.jsx";
-import OtherPeopleProfile from "./Pages/OtherPeopleProfile.jsx";
+import RecomendedVideos from "./RecomendedVideos.jsx";
 
 function Main() {
     const { user } = useContext(UserContext);
-    const [danceVideos, setdanceVideos] = useState([]);
-    
+    // const [danceVideos, setdanceVideos] = useState([]);
     const [form, setForm] = useState({
-        title: '',
-        content: '',
-        credentials: 'include'
+        title: "",
+        content: "",
+        credentials: "include",
     });
     const { updateUser } = useContext(UserContext);
     const navigate = useNavigate();
+    const [videosAPI, setVideosAPI] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() =>{
-        const fetchDanceVideos = async () => {
-            const response = await fetch('http://localhost:3000/getVideos');
-            const data = await response.json();
-            console.log(data.video_results)
-            setdanceVideos(data);    
-        };
-        fetchDanceVideos();      
+    // useEffect(() => {
+    //     const fetchDanceVideos = async () => {
+    //         const response = await fetch("http://localhost:3000/getVideos");
+    //         const data = await response.json();
+    //         setdanceVideos(data);
+    //     };
+    //     fetchDanceVideos();
+    // }, []);
+
+    useEffect(() => {
+        fetch(
+            "https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLU0Zi53zZiB6MZWh4Nyv3HwlhEd99Earo&key=AIzaSyAD22FxXGqu8Ph3k9_XHzJChuLTJ2Bujbo"
+        )
+        .then((res) => res.json())
+        .then((data) => {
+            setIsLoading(false);
+            setVideosAPI(data.items);
+        })
+        .catch((err) => {
+            console.error("Error fetching data: ", err);
+            setIsLoading(false);
+            setError("Sorry, something went wrong. Please try again later.");
+        });
     }, []);
 
-    const handleChange = (event) => {
-        setForm({
-            ...form,
-            [event.target.name]: event.target.value,
-        });
-    };
     const handleLogout = async () => {
-        const response = await fetch('http://localhost:3000/logout', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
+        const response = await fetch("http://localhost:3000/logout", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
         });
-        const data = response.json()
-
-        updateUser()
-        navigate("/")
-    }
+        const data = response.json();
+        updateUser();
+        navigate("/");
+    };
     return (
         <div className="main">
-        <header className="header">
-          <div className="user-info">
-            {user ? (
-              <>
-                <span>Hi {user.username}! |</span>
-                <button onClick={handleLogout}>Logout</button>
-              </>
-            ) : (
-              <Link to="/login">Login</Link>
-            )}
-          </div>
-        <p>
-          New Post <Link to="/newpost"> new post </Link>
-        </p>
-        {/* <div>
-            <input
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchInputChange}
-                placeholder="Search for users"
-            />
-            <ul>
-                {searchResults.map((user) => (
-                <li key={user.id}>{user.name}</li>
-                ))}
-            </ul>
-        </div> */}
-     </header>
-        <DanceVideosBoard
-        video_results={danceVideos}
-        />
+            <header className="header">
+                <div className="user-info">
+                    {user ? (
+                        <>
+                            <span>Hi {user.username}! |</span>
+                            <button onClick={handleLogout}>Logout</button>
+                        </>
+                    ) : (
+                        <Link to="/login">Login</Link>
+                    )}
+                </div>
+                <p>
+                    New Post <Link to="/newpost"> new post </Link>
+                </p>
+                <p>
+                    Notifications <Link to="/notifications"> notifications </Link>
+                </p>
+                <p>
+                    Watchlater  <Link to="/watchLater"> watchlater </Link>
+                </p>
+            </header>
+            <div className="recommendationsBar">
+                {user ? <RecomendedVideos /> : <></>}
+            </div>
+            {/* <DanceVideosBoard video_results={danceVideos} /> */}
+            <section className="recommended">
+                <p id="videoTitle"> Main Feed</p>
+                    {isLoading ? (
+                        <div className="loader-box">Loading...</div>
+                    ) : error ? (
+                        <h3>{error}</h3>
+                    ) : (
+                        videosAPI.map((video) => (
+                            <div key={video.snippet.resourceId.videoId}>
+                                <a
+                                    className="videoList"
+                                    target="_blank"
+                                    href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
+                                >
+                                    <img
+                                        className="videoCard"
+                                        src={
+                                            video.snippet.thumbnails.standard
+                                                .url
+                                        }
+                                        alt={video.snippet.title}
+                                    />
+                                    <h3 className="videoItem">
+                                        {video.snippet.title}
+                                    </h3>
+                                </a>
+                            </div>
+                        ))
+                    )}
+                </section>
         </div>
-      )
+    );
 }
 export default Main;

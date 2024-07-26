@@ -8,18 +8,15 @@ cloudinary.config({
     api_key: '995179956656439',
     api_secret: 'EehBxe-7GAIby52nrzN1O9yEoXY'
 });
-
 async function handleUpload(file) {
     const res = await cloudinary.v2.uploader.upload(file, {
         resource_type: "auto",
     });
     return res;
 }
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const myUploadMiddleware = upload.single("video");
-
 function runMiddleware(req, res, fn) {
     return new Promise((resolve, reject) => {
         fn(req, res, (result) => {
@@ -30,10 +27,9 @@ function runMiddleware(req, res, fn) {
         });
     });
 }
-
 const handler = async (req, res) => {
     try {
-        console.log(req.session)
+        const videoCategory = JSON.parse(req.query.categories)
         if (!req.session.user) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
@@ -48,24 +44,25 @@ const handler = async (req, res) => {
                     connect: {
                         id: req.session.user.id
                     }
-                }
+                },
+                categories: {
+                    connect: videoCategory.map(id => ({ id }))
+                },
+                title: req.query.title,
             },
         })
         res.json({
             success: true
         });
     } catch (error) {
-        console.log(error);
         res.json({
             message: error.message,
         });
     }
 };
-
 const config = {
     api: {
         bodyParser: false,
     },
 };
-
 module.exports = { handler, config };

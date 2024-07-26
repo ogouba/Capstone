@@ -36,7 +36,7 @@ const exampleVideoData = {
         "dar": "16:9",
         "time_base": "1/15360"
     },
-    "is_audio": false,
+    "is_audio": true,
     "frame_rate": 30,
     "bit_rate": 3956841,
     "duration": 5.758549,
@@ -44,5 +44,4 @@ const exampleVideoData = {
     "nb_frames": 171,
     "api_key": "995179956656439"
 }
-
 module.exports = { exampleVideoData }

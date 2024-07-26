@@ -1,97 +1,109 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './SignupForm.css'
-import { UserContext } from '../UserContext.js'
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./SignupForm.css";
+import { UserContext } from "../UserContext.js";
+import Checkboxlist from "./Checkbox.jsx";
 
 const SignupForm = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [categories, setCategories] = useState([]);
+    const { updateUser } = useContext(UserContext);
+    const navigate = useNavigate();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Make the signup API request
+            const response = await fetch(`http://localhost:3000/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, email, password, categories }),
+                credentials: "include",
+            });
 
-  const { updateUser } = useContext(UserContext);
-  const navigate = useNavigate();
+            if (response.ok) {
+                const data = await response.json();
+                const loggedInUser = data.user;
+                <p>Signup Successful</p>
+                // Reset form fields
+                setUsername("");
+                setEmail("");
+                setPassword("");
+                setCategories([]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+                // Update the user context
+                updateUser(loggedInUser);
 
-    try {
-      // Make the signup API request
-      const response = await fetch(`http://localhost:3000/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
-        credentials: 'include'
-      });
+                // Navigate to the home page after successful login
+                navigate("/");
+            } else {
+                // Handle signup failure case
+                alert("Signup failed");
+            }
+        } catch (error) {
+            // Handle any network or API request errors
+            alert("Signup failed: " + error);
+        }
+    };
 
-      if (response.ok) {
-        const data = await response.json();
-        const loggedInUser = data.user;
-
-        console.log('Signup successful');
-
-        // Reset form fields
-        setUsername('');
-        setEmail('');
-        setPassword('');
-
-        // Update the user context
-        updateUser(loggedInUser);
-
-        // Navigate to the home page after successful login
-        navigate('/');
-      } else {
-        // Handle signup failure case
-        alert('Signup failed');
-      }
-    } catch (error) {
-      // Handle any network or API request errors
-      alert('Signup failed: ' + error);
-    }
-  };
-
-  return (
-    <div className="signup-form-container">
-      <form className="signup-form" onSubmit={handleSubmit}>
-        <h2>Sign Up</h2>
-        <div className="form-group">
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+    return (
+        <div className="signup-form-container">
+            <form className="signup-form" onSubmit={handleSubmit}>
+                <h2>Sign Up</h2>
+                <div className="form-group">
+                    <label htmlFor="username">Username:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="email">Email:</label>
+                    <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password">Password:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <h2>Dance Categories</h2>
+                    <Checkboxlist
+                        options={[
+                            { id: 1, name: "Hip Pop" },
+                            { id: 2, name: "Jazz" },
+                            { id: 3, name: "Afrobeat" },
+                            { id: 4, name: "Salsa" },
+                            { id: 5, name: "Ballet" },
+                        ]}
+                        selectedOptions={categories}
+                        setSelectedOptions={(val) => setCategories(val)}
+                    />
+                </div>
+                <button type="submit">Sign Up</button>
+                <p>
+                    Already have an account? <Link to="/login">Log In</Link>
+                </p>
+            </form>
         </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Sign Up</button>
-        <p>
-          Already have an account? <Link to="/login">Log In</Link>
-        </p>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default SignupForm;

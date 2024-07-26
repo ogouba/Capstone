@@ -12,7 +12,6 @@ export const useAuth = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 if (data.isLoggedIn) {
                     setUser(data.user);
                 } else {
