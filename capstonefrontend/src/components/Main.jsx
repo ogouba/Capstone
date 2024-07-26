@@ -19,7 +19,7 @@ function Main() {
 
     useEffect(() => {
         fetch(
-            "https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLU0Zi53zZiB6MZWh4Nyv3HwlhEd99Earo&key=AIzaSyAD22FxXGqu8Ph3k9_XHzJChuLTJ2Bujbo"
+            `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLU0Zi53zZiB6MZWh4Nyv3HwlhEd99Earo&key=${import.meta.env.VITE_API_KEY2}`
         )
         .then((res) => res.json())
         .then((data) => {
