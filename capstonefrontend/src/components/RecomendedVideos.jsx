@@ -23,7 +23,7 @@ function RecommendedVideos() {
         // Delay the fetch call by 3 seconds
         const timer = setTimeout(() => {
             fetch(
-                "https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUGzGbfhdFsjP1yfJUEpSvWg&key=AIzaSyAD22FxXGqu8Ph3k9_XHzJChuLTJ2Bujbo"
+                `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UUGzGbfhdFsjP1yfJUEpSvWg&key=${import.meta.env.VITE_API_KEY2}`
             )
                 .then((res) => res.json())
                 .then((data) => {
