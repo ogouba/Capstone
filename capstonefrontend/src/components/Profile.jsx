@@ -95,7 +95,6 @@ function Profile() {
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",
-                // Include authorization headers if needed
             },
             body: JSON.stringify({ query: searchQueryVideos }),
         });

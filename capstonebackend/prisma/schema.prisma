@@ -7,54 +7,81 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String
-  expiresAt DateTime
-  user      User[]
+  id 					String   		@id
+  sid       			String   		@unique
+  data      			String
+  expiresAt 			DateTime
+  user      			User[]
 }
-
 model Video {
-  id        Int     @id @default(autoincrement())
-  videoData Json
-  isPublic  Boolean @default(false)
-  creator   User    @relation(fields: [userId], references: [id])
-  userId    Int
-  categories    Category[]  @relation("VideoCategories")
-  createdAt  DateTime  @default(now())
-  title     String 
+  id        			Int     		@id @default(autoincrement())
+  videoData 			Json
+  isPublic  			Boolean 		@default(false)
+  creator   			User    		@relation(fields: [userId], references: [id])
+  userId    			Int
+  categories    		Category[]  	@relation("VideoCategories")
+  createdAt  			DateTime  		@default(now()) 
+  title     			String 
+  watchLaters			WatchLater[] 	
 }
-
 model User {
-  id             Int       @id @default(autoincrement())
-  username       String    @unique
-  email          String
-  hashedPassword String
-  sessions       Session[]  
-  videos         Video[]    
-  interests      Category[]  @relation("UserInterest")
-  searches       Search[]   @relation("UserSearch")
+  id             		Int       		@id @default(autoincrement())
+  username      		String    		@unique
+  email          		String
+  hashedPassword 		String
+  sessions       		Session[]  
+  videos         		Video[]    
+  interests      		Category[]  	@relation("UserInterest")
+  searches       		Search[]   		@relation("UserSearch")
+  watchLaters     		WatchLater[] 
+  watcherLaterAPIs		WatchLaterAPI[]
 }
-
 model Category{
-  id       Int   @id
-  name     String
-  users    User[]   @relation("UserInterest")
-  videos   Video[]  @relation("VideoCategories")
+  id       				Int   			@id
+  name     				String
+  users    				User[]   		@relation("UserInterest")
+  videos   				Video[]  		@relation("VideoCategories")
 }
 model Search {
-  id        Int      @id @default(autoincrement())
-  query     String    @unique
-  createdAt DateTime @default(now())
-  users     User[]     @relation("UserSearch")
+  id        			Int      		@id @default(autoincrement())
+  query     			String    		@unique
+  createdAt 			DateTime 		@default(now())
+  users     			User[]     		@relation("UserSearch")
 }
+model WatchLater{
+  id    				Int 			@id @default(autoincrement())
+  timeAdded  			DateTime 		@default(now())
+  user     				User			@relation(fields: [userId], references: [id])
+  userId 				Int				
+  video					Video			@relation(fields: [videoId], references: [id])
+  videoId				Int			
+  markAsWatched 		Boolean 		@default(false)
+  @@unique([userId, videoId], name: "unique_user_video")
+}
+model  Notification {
+  id     	 			Int 			@id @default(autoincrement())
+  content 				String
+  userId  				Int
+  createdAt  			DateTime  		@default(now())
+  isRead  				Boolean 		@default(false) 
+}
+model WatchLaterAPI {
+	id					Int				@id @default(autoincrement())
+	timeAdded  			DateTime 		@default(now())
+	user     			User			@relation(fields: [userId], references: [id])
+	userId 				Int	
+	videoSnippet		String
+	markAsWatched		Boolean 		@default(false)
+    title               String
+    thumbnail           String	
+	@@unique([userId, videoSnippet], name: "unique_user_video")
+}
+
 
 
 

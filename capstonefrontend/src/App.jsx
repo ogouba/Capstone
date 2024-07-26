@@ -5,8 +5,9 @@ import Main from "./components/Main";
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
 import HomePage from "./components/Profile";
+import Notifications from "./components/Notifications";
+import WatchLater from "./components/WatchLater";
 import { useAuth } from "./hooks";
-
 function App() {
     const [user, updateUser] = useAuth();
     return (
@@ -18,6 +19,8 @@ function App() {
                         <Route path="/login" element={<LoginForm />} />
                         <Route path="/signup" element={<SignupForm />} />
                         <Route path="/newpost" element={<HomePage />} />
+                        <Route path="/notifications" element={<Notifications />}/>
+                        <Route path="/watchLater" element={<WatchLater />}/>
                     </Routes>
                 </UserContext.Provider>
             </BrowserRouter>

@@ -1,16 +1,27 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-var cors = require('cors')
+
 const express = require('express')
+require('dotenv').config()
+const { handler } = require("./upload")
+const { getJson } = require("serpapi");
+const notificationsRoute = require("./notifications.js")
 const bcrypt = require('bcrypt')
-const saltRounds = 14;
-const app = express()
 const session = require('express-session')
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
+const http = require("http");
+const { Server } = require("socket.io");
+
+const saltRounds = 14;
+const app = express()
 const PORT = 3000
-require('dotenv').config()
+var cors = require('cors')
 app.use(cors({ origin: ["http://localhost:5173", "http://localhost:4173"], credentials: true }));
 app.use(express.json())
+
+// const to import important notifications file
+const SSE = require("./sse")
+
 app.use(
     session({
         secret: 'your-secret-key',
@@ -33,8 +44,23 @@ app.use(
         },
     })
 );
-const { handler } = require("./upload")
-const { getJson } = require("serpapi");
+
+app.get("/sse/:userId", (req,res) =>{
+    const userId = req.params.userId;
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    SSE.addNotification(userId, res);
+    res.on("close", () => {
+        SSE.removeUserClient(userId, res);
+        res.end();
+    });
+
+});
+
+app.use("/notifications", notificationsRoute)
+
 //fetch data for the main feed that displays even when users are not logged in
 app.get("/getVideos", async (req, res) => {
     try {
@@ -257,57 +283,72 @@ app.post('/saveSearch', async (req, res) => {
 });
 // get user recommended videos from the backend
 app.get("/getRecommendedVideosPrisma", async (req, res) => {
-    const userId = req.session.user.id;
-    // Fetch the searches for the user
-    const userSearches = await prisma.search.findMany({
-        where: {
-            users: {
-                some: {
-                    id: userId,
-                },
-            },
-        },
-    });
-    // Fetch the interests for the user
-    const userInterests = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { interests: true },
-    });
-    // Extract the search queries
-    const searchQueries = userSearches.map(search => search.query);
-    // Extract the interest names
-    const interestNames = userInterests.interests.map(interest => interest.name);
-    // Combine search queries and interest names
-    const combinedCriteria = [
-        ...searchQueries.map(query => ({
-            categories: {
-                some: {
-                    name: {
-                        contains: query,
-                        mode: 'insensitive',
+    try {
+        const userId = req.session.user.id;
+        // Fetch the searches for the user
+        const userSearches = await prisma.search.findMany({
+            where: {
+                users: {
+                    some: {
+                        id: userId,
                     },
                 },
             },
-        })),
-        ...interestNames.map(name => ({
-            categories: {
-                some: {
-                    name: {
-                        contains: name,
-                        mode: 'insensitive',
+        });
+        // Fetch the interests for the user
+        const userInterests = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { interests: true },
+        });
+        // Extract the search queries
+        const searchQueries = userSearches.map(search => search.query);
+        // Extract the interest names
+        const interestNames = userInterests.interests.map(interest => interest.name);
+        // Combine search queries and interest names
+        const combinedCriteria = [
+            ...searchQueries.map(query => ({
+                categories: {
+                    some: {
+                        name: {
+                            contains: query,
+                            mode: 'insensitive',
+                        },
                     },
                 },
+            })),
+            ...interestNames.map(name => ({
+                categories: {
+                    some: {
+                        name: {
+                            contains: name,
+                            mode: 'insensitive',
+                        },
+                    },
+                },
+            })),
+        ];
+        // Use the combined criteria to find videos
+        const videos = await prisma.video.findMany({
+            where: {
+                OR: combinedCriteria,
             },
-        })),
-    ];
-    // Use the combined criteria to find videos
-    const videos = await prisma.video.findMany({
-        where: {
-            OR: combinedCriteria,
-        },
-    });
-    res.json(videos);
+        });
+        shuffleArray(videos)
+        res.json(videos);
+    } catch (error) {
+        return res.json([]);
+    }
 });
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        // Generate a random index from 0 to i
+        const j = Math.floor(Math.random() * (i + 1));
+        
+        // Swap elements at indices i and j
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })

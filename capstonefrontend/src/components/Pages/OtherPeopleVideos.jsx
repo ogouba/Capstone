@@ -27,5 +27,4 @@ function OtherPeopleVideos({ searchQuery }) {
         </div>
     );
 }
-
 export default OtherPeopleVideos;

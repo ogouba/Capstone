@@ -7,7 +7,7 @@ import RecomendedVideos from "./RecomendedVideos.jsx";
 
 function Main() {
     const { user } = useContext(UserContext);
-    const [danceVideos, setdanceVideos] = useState([]);
+    // const [danceVideos, setdanceVideos] = useState([]);
     const [form, setForm] = useState({
         title: "",
         content: "",
@@ -15,22 +15,35 @@ function Main() {
     });
     const { updateUser } = useContext(UserContext);
     const navigate = useNavigate();
-    
+    const [videosAPI, setVideosAPI] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // useEffect(() => {
+    //     const fetchDanceVideos = async () => {
+    //         const response = await fetch("http://localhost:3000/getVideos");
+    //         const data = await response.json();
+    //         setdanceVideos(data);
+    //     };
+    //     fetchDanceVideos();
+    // }, []);
+
     useEffect(() => {
-        const fetchDanceVideos = async () => {
-            const response = await fetch("http://localhost:3000/getVideos");
-            const data = await response.json();
-            setdanceVideos(data);
-        };
-        fetchDanceVideos();
+        fetch(
+            "https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLU0Zi53zZiB6MZWh4Nyv3HwlhEd99Earo&key=AIzaSyAD22FxXGqu8Ph3k9_XHzJChuLTJ2Bujbo"
+        )
+        .then((res) => res.json())
+        .then((data) => {
+            setIsLoading(false);
+            setVideosAPI(data.items);
+        })
+        .catch((err) => {
+            console.error("Error fetching data: ", err);
+            setIsLoading(false);
+            setError("Sorry, something went wrong. Please try again later.");
+        });
     }, []);
 
-    const handleChange = (event) => {
-        setForm({
-            ...form,
-            [event.target.name]: event.target.value,
-        });
-    };
     const handleLogout = async () => {
         const response = await fetch("http://localhost:3000/logout", {
             method: "GET",
@@ -55,13 +68,49 @@ function Main() {
                     )}
                 </div>
                 <p>
-                    New Post go to link <Link to="/newpost"> new post </Link>
+                    New Post <Link to="/newpost"> new post </Link>
+                </p>
+                <p>
+                    Notifications <Link to="/notifications"> notifications </Link>
+                </p>
+                <p>
+                    Watchlater  <Link to="/watchLater"> watchlater </Link>
                 </p>
             </header>
             <div className="recommendationsBar">
-                <RecomendedVideos />
+                {user ? <RecomendedVideos /> : <></>}
             </div>
-            <DanceVideosBoard video_results={danceVideos} />
+            {/* <DanceVideosBoard video_results={danceVideos} /> */}
+            <section className="recommended">
+                <p id="videoTitle"> Main Feed</p>
+                    {isLoading ? (
+                        <div className="loader-box">Loading...</div>
+                    ) : error ? (
+                        <h3>{error}</h3>
+                    ) : (
+                        videosAPI.map((video) => (
+                            <div key={video.snippet.resourceId.videoId}>
+                                <a
+                                    className="videoList"
+                                    target="_blank"
+                                    href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
+                                >
+                                    <img
+                                        className="videoCard"
+                                        src={
+                                            video.snippet.thumbnails.standard
+                                                .url
+                                        }
+                                        alt={video.snippet.title}
+                                    />
+                                    <h3 className="videoItem">
+                                        {video.snippet.title}
+                                    </h3>
+                                </a>
+                            </div>
+                        ))
+                    )}
+                </section>
         </div>
     );
 }
