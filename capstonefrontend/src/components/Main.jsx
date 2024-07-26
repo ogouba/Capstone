@@ -2,12 +2,10 @@ import "./Main.css";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext.js";
 import { Link, useNavigate } from "react-router-dom";
-import DanceVideosBoard from "./DanceVIdeosBoard.jsx";
 import RecomendedVideos from "./RecomendedVideos.jsx";
 
 function Main() {
     const { user } = useContext(UserContext);
-    // const [danceVideos, setdanceVideos] = useState([]);
     const [form, setForm] = useState({
         title: "",
         content: "",
@@ -18,15 +16,6 @@ function Main() {
     const [videosAPI, setVideosAPI] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    // useEffect(() => {
-    //     const fetchDanceVideos = async () => {
-    //         const response = await fetch("http://localhost:3000/getVideos");
-    //         const data = await response.json();
-    //         setdanceVideos(data);
-    //     };
-    //     fetchDanceVideos();
-    // }, []);
 
     useEffect(() => {
         fetch(
@@ -80,7 +69,6 @@ function Main() {
             <div className="recommendationsBar">
                 {user ? <RecomendedVideos /> : <></>}
             </div>
-            {/* <DanceVideosBoard video_results={danceVideos} /> */}
             <section className="recommended">
                 <p id="videoTitle"> Main Feed</p>
                     {isLoading ? (
